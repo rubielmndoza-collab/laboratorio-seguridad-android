@@ -1,11 +1,6 @@
 name: Construir APK del laboratorio
 
-on:
-  workflow_dispatch:
-  push:
-    paths:
-      - 'Laboratorio_Seguridad_Android_Proyecto.zip'
-      - '.github/workflows/android.yml'
+on: [push, workflow_dispatch]
 
 jobs:
   construir:
@@ -23,16 +18,16 @@ jobs:
       - name: Preparar Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Extraer proyecto del laboratorio
+      - name: Extraer proyecto
         run: |
           unzip -o Laboratorio_Seguridad_Android_Proyecto.zip -d proyecto
-          find proyecto -name settings.gradle -o -name settings.gradle.kts
+          find proyecto \( -name settings.gradle -o -name settings.gradle.kts \)
 
       - name: Compilar APK
         run: |
-          DIR="$(dirname "$(find proyecto -name settings.gradle -o -name settings.gradle.kts | head -n 1)")"
-          test -n "$DIR"
-          cd "$DIR"
+          ARCHIVO=$(find proyecto \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit)
+          test -n "$ARCHIVO"
+          cd "$(dirname "$ARCHIVO")"
           gradle assembleDebug
 
       - name: Guardar APK
